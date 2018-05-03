@@ -1,9 +1,11 @@
-
+# Sasha Sreckovic
+#
 import random
 import math
 import time
 
 def main():
+    #UNCOMMENT FOR TIMING
     #ts = time.time()
 
     with open('nqueens.txt') as f:
@@ -19,12 +21,15 @@ def main():
             w.write(str(queensPos))
             w.write("\n")
 
-       
+    
+    #UNCOMMENT FOR TIMING
     #td = time.time() - ts
     #print(td)   
 
 
 
+#This function takes the size of the board and returns a list of 
+#the positions of the queens on the board
 def minConflictsSolver(boardSize):
 
     if boardSize > 10000:
@@ -46,8 +51,9 @@ def minConflictsSolver(boardSize):
             return current
 
 
-        #somewhat randomly choose a variable from the list
 
+        #determine the number of pieces you are randomly checking for conflicts
+        #(checking all would take too much time)
         numChecks = math.floor(math.log(boardSize, 2))
 
         if numChecks < 2:
@@ -57,7 +63,7 @@ def minConflictsSolver(boardSize):
         maxIndex = -1
 
         #randomly pick log(boardsize) number of pieces and find conflicts and take the one with the most
-        #conflicts
+        #conflicts so it can be moved.
         for i in range(numChecks):
             conflicts = 0
             randIndex = random.randint(0,len(queensInConflict) -1)
@@ -121,13 +127,22 @@ def minConflictsSolver(boardSize):
 
 
 
-
+#this function takes the size of the board and creates an initial configuration of the board using greedy algorithm
+#with minimum conflicts as the heuristic to determine where to place each queen.
 def setInitialBoard(boardSize):
     
-    piecePositions = []  
+    #List of positions of the queens
+    piecePositions = [] 
+
+    #List of queens that have conflicts, useful for when moving positions of queens 
     queensInConflict = []
 
     #initialize the lists
+    #emptyCols holds a list of all columns that currently have no queens
+    #colConflicts holds a list of length boardSize that holds the number of conflicts in each row
+    #negDiagonals holds the number of conflicts in each diagonal going from top left to bottom right
+    #PosDiagonals holds the number of conflicts in each diagonal going from top right to bottom left
+    
     emptyCols = list(range(0,boardSize))
     colConflicts = [0] * boardSize
     negDiagonal = [0]*(2*boardSize - 1)
@@ -140,7 +155,10 @@ def setInitialBoard(boardSize):
         minIndex = -1
         minConflicts = boardSize
 
+        #offset is randomly chosen so that each new configuration of the board starts in a different spot
         offset = random.randint(1,boardSize-1)
+
+        #in this row, for each empty column look for a spot with zero conflict, if not choose the minimum conflicts spot
         for i in range(len(emptyCols)-1):
             
             if len(emptyCols) == 1:
@@ -166,6 +184,7 @@ def setInitialBoard(boardSize):
                     minIndex = index
 
 
+
         colNum = emptyCols[minIndex]
         piecePositions.append(colNum)
 
@@ -187,7 +206,7 @@ def setInitialBoard(boardSize):
 
 
 
-    #get a list of all of the queens in conflict
+    #get a list of all of the queens in conflict after the board is set.
     for row in range(boardSize):
         col = piecePositions[row]
         confs = colConflicts[col] + negDiagonal[row - col + boardSize -1] + posDiagonal[row + col]
@@ -201,7 +220,8 @@ def setInitialBoard(boardSize):
 
 
 #this function takes the position of 1 queen, the state of the board and
-#the board size and returns the position in the column of the single queen
+#the board size as well as the lists that hold the number of conflicts
+#and returns the position in the column of the single queen
 #that has the least number of conflicts with other queens.
 def getMinConflicts(queen, current , boardSize, colConflicts, negDiagonal, posDiagonal,emptyCols):
 
@@ -216,8 +236,9 @@ def getMinConflicts(queen, current , boardSize, colConflicts, negDiagonal, posDi
     emptyIndex = -1
     length = len(emptyCols)
 
-
+    #if there are any columns that are empty put a queen in there first.
     if length > 0:
+
         for i in range(len(emptyCols)-1):
             col = emptyCols[i]
             confs = posDiagonal[qRow + col] + negDiagonal[qRow-col+boardSize-1]
@@ -235,6 +256,7 @@ def getMinConflicts(queen, current , boardSize, colConflicts, negDiagonal, posDi
             return (col, emptyIndex)
 
     else:
+        #find the column with the least number of conflicts for the pieces given row.
         for j in range(boardSize):
             colIndex = random.randint(0,boardSize-1)
             confs = colConflicts[colIndex] + posDiagonal[qRow + colIndex] + negDiagonal[qRow-colIndex+boardSize-1]
