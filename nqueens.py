@@ -1,8 +1,3 @@
-# n queens problem
-# CISC 352 Assignment 1
-#
-# By: Michael Wilson 10152552
-#     Sasha Sreckovic 10152504
 
 import random
 import math
